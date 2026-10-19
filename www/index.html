@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14181d">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>FieldCam</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header class="top">
+      <h1>FieldCam</h1>
+      <span id="platform" class="muted"></span>
+    </header>
+
+    <section class="viewer">
+      <video id="preview" autoplay muted playsinline></video>
+      <div class="hud">
+        <span><span id="recDot" class="dot"></span><span id="timer">00:00</span></span>
+        <span id="locInfo">Location: waiting</span>
+      </div>
+    </section>
+
+    <section class="controls">
+      <select id="cameraSelect" aria-label="Camera">
+        <option value="environment">Back camera</option>
+        <option value="user">Front camera</option>
+      </select>
+      <button id="startCam">Start camera</button>
+      <button id="recordBtn" class="record" disabled>Record</button>
+    </section>
+
+    <p id="status" role="status"></p>
+
+    <section class="panel settings">
+      <label class="check">
+        <input type="checkbox" id="cellFallback">
+        Use cell towers when GPS is weak or unavailable (works offline)
+      </label>
+      <label class="row">
+        Treat GPS as weak when accuracy is worse than
+        <select id="weakAcc" aria-label="Weak GPS threshold">
+          <option value="20">20 m</option>
+          <option value="50">50 m</option>
+          <option value="100">100 m</option>
+          <option value="250">250 m</option>
+        </select>
+      </label>
+      <p id="cellNote" class="hint"></p>
+    </section>
+
+    <details class="panel" id="towerPanel">
+      <summary>Offline tower database <span id="towerCount" class="pill"></span></summary>
+      <ol class="hint steps">
+        <li>Get a free API token at <b>opencellid.org</b> (sign up → Tokens).</li>
+        <li>On this phone, download your country's file from the OpenCelliD <b>Downloads</b> page.
+          India is <code>404.csv.gz</code> and <code>405.csv.gz</code>. Import both.</li>
+        <li>Pick the area you'll travel in below, then import. Keeping only nearby towers makes the
+          import much faster.</li>
+      </ol>
+      <div class="imp-grid">
+        <label>Keep towers within
+          <input id="impRadius" type="number" inputmode="decimal" min="1" value="300"> km of
+        </label>
+        <label>Lat <input id="impLat" type="number" inputmode="decimal" step="any" placeholder="e.g. 26.14"></label>
+        <label>Lon <input id="impLon" type="number" inputmode="decimal" step="any" placeholder="e.g. 91.74"></label>
+        <button id="useLoc" type="button">Use current location</button>
+      </div>
+      <p class="hint">Leave Lat/Lon empty to import every tower in the file. That's slow for whole-country files.</p>
+      <input type="file" id="towerFile" hidden>
+      <div class="row-btns">
+        <button id="importBtn" type="button">Import OpenCelliD file (.csv / .csv.gz)</button>
+        <button id="clearTowers" type="button" class="danger">Clear database</button>
+      </div>
+      <progress id="impProgress" max="1" value="0" hidden></progress>
+      <p id="impStatus" class="hint"></p>
+    </details>
+
+    <details class="panel" id="scanPanel">
+      <summary>Live cell scan <span id="scanSummary" class="pill"></span></summary>
+      <div class="table-wrap">
+        <table id="scanTable">
+          <thead><tr><th>Type</th><th>MCC-MNC</th><th>Area</th><th>Cell ID</th><th>dBm</th><th>TA</th><th>In DB</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="scanEstimate" class="hint"></p>
+    </details>
+
+    <section class="recordings">
+      <div class="rec-head">
+        <h2>Recordings</h2>
+        <span id="storage" class="muted"></span>
+      </div>
+      <ul id="list"></ul>
+    </section>
+  </main>
+  <script src="capacitor.js"></script>
+  <script src="towers.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

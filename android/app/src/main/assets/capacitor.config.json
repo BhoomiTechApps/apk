@@ -1,0 +1,8 @@
+{
+	"appId": "com.fieldcam.app",
+	"appName": "FieldCam",
+	"webDir": "www",
+	"android": {
+		"allowMixedContent": false
+	}
+}

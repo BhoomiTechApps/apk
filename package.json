@@ -1,0 +1,21 @@
+{
+  "name": "fieldcam",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FieldCam: record video with a GPS track and offline cell-tower fallback (Android)",
+  "scripts": {
+    "copy:core": "cp node_modules/@capacitor/core/dist/capacitor.js www/capacitor.js",
+    "sync": "npm run copy:core && cap sync android",
+    "build:apk": "npm run sync && cd android && ./gradlew assembleDebug",
+    "test": "node --test test/towers.test.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/share": "^8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}
