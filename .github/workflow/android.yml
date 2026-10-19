@@ -1,0 +1,58 @@
+name: Build FieldCam APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # to publish the APK as a GitHub Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests (tower positioning + import)
+        run: npm test
+
+      - name: Sync web assets into the Android project
+        run: npm run sync
+
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FieldCam-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish as "latest-debug" release (easy phone download)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk FieldCam-debug.apk
+          gh release delete latest-debug --yes --cleanup-tag || true
+          gh release create latest-debug FieldCam-debug.apk \
+            --prerelease --title "FieldCam — latest debug build" \
+            --notes "Built from ${GITHUB_SHA::7}. Download FieldCam-debug.apk on your Android phone and install it."
